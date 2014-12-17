@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Socket.IO chat</title>
+  <style type="text/css">
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font: 13px Helvetica, Arial;
+  }
+  .bottom {
+    background: #000;
+    padding: 3px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  #name {
+    border: 0;
+    padding: 10px;
+    width: 40%;
+    margin-bottom: .5%;
+  }
+  form input {
+    border: 0;
+    padding: 10px;
+    width: 90%;
+    margin-right: .5%;
+  }
+  form button {
+    width: 9%;
+    background: rgb(130, 224, 255);
+    border: none;
+    padding: 10px;
+  }
+  #messages {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  #messages li {
+    padding: 5px 10px;
+  }
+  #messages li:nth-child(odd) {
+    background: #eee;
+  }
+  </style>
+</head>
+
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+$(document).ready(function() {
+  var socket = io();
+  $('form').submit(formSubmit);
+  socket.on('chat message', messageReceived);
+  socket.on('numConnections', updateNumConnections);
+
+  function formSubmit() {
+    var obj = {}
+    obj.name = $('#name').val();
+    obj.msg = $('#m').val();
+
+    messageReceived(obj); //also adds message to current view
+
+    socket.emit('chat message', obj);
+    $('#m').val('');
+    return false;
+  }
+
+  function messageReceived(obj) {
+    $('#messages').append($('<li>').text(obj.name + ': ' + obj.msg));
+  }
+
+  function updateNumConnections(numConnections) {
+    $('#numConnections').text(numConnections);
+  }
+});
+</script>
+
+<body>
+  <div>
+    <h1>A super anonymous chatroom</h1>
+    <p>Number of users: <span id="numConnections" /> </p>
+  </div>
+
+  <ul id="messages">
+    <!-- Filled in dynamically -->
+  </ul>
+
+  <div class="bottom">
+    <input id="name" placeholder="Display Name" />
+    <form action="">
+      <input id="m" autocomplete="off" />
+      <button>Send</button>
+    </form>
+  </div>
+</body>
+
+</html>
